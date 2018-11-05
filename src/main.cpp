@@ -102,6 +102,11 @@ int main(int argc, char **argv)
 			continue;
 		string im_name = dir_im + sub_im_name;
 		string line_label_file = im_name.substr(0, im_name.find_last_of(".")) + ".lines.txt";
+        int frame182 = line_label_file.find("driver_182_30frame");
+
+        if(frame182 >= 0)
+            cout <<" ============ "<< line_label_file;
+
 		seg_label_generator.readLabelFile(line_label_file);
 		if(count%100==0)
 			cout << count << ": " << im_name << endl;
@@ -116,9 +121,11 @@ int main(int argc, char **argv)
 			}
 			else if(mode == "trainList")
 			{
-				string segLabel_name = "/laneseg_label_w16/" + sub_im_name.substr(0, sub_im_name.find_last_of(".")) + ".png";
-				ofs_out_file<<sub_im_name<<' '<<segLabel_name;
-				seg_label_generator.outputLabels(ofs_out_file);
+                string all_dir_path = "/home/cidi/dl/lane/SCNN/data/CULane";
+				string segLabel_name = "/laneseg_label" + sub_im_name.substr(0, sub_im_name.find_last_of(".")) + ".png";
+				string segLabelbin_name = "/laneseg_labelbin" + sub_im_name.substr(0, sub_im_name.find_last_of(".")) + ".png";
+				ofs_out_file<<all_dir_path+sub_im_name<<' '<<all_dir_path+segLabelbin_name<<' '<<all_dir_path+segLabel_name;
+				//seg_label_generator.outputLabels(ofs_out_file);
 				ofs_out_file<<endl;
 			}
 			else

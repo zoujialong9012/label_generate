@@ -6,8 +6,8 @@ INCLUDE_DIRS := include
 LIBRARY_DIRS := lib
 
 COMMON_FLAGS := -DCPU_ONLY
-CXXFLAGS := -std=c++11 -fopenmp
-LDFLAGS := -fopenmp -Wl,-rpath,./lib
+CXXFLAGS := -g -std=c++11 -fopenmp
+LDFLAGS := -g -fopenmp -Wl,-rpath,./lib
 
 BUILD_DIR := build
 

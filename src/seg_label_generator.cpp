@@ -330,6 +330,7 @@ void SegLabelGenerator::showLabels(const string &im_name, int width, int wait_ti
 		}
 
 	}
+    cout<<"hight "<<im.rows<<"w " << im.cols;
 	resize(im, im, Size(820,295), 0, 0, INTER_NEAREST);
 
 	imshow(window_name, im);
@@ -341,8 +342,9 @@ void SegLabelGenerator::showLabels(const string &im_name, int width, int wait_ti
 void SegLabelGenerator::outputimLabels(const string &output_path, const string &sub_im_name, int width, bool Flip)
 {
 	Mat im(im_height, im_width, CV_8UC1, Scalar(0));
+	Mat imbin(im_height, im_width, CV_8UC1, Scalar(0));
 	const Scalar color_y_seq = Scalar(70, 120, 60);
-	Scalar color_lines[4] = {Scalar(1), Scalar(2), Scalar(3), Scalar(4)};
+	Scalar color_lines[4] = {Scalar(10), Scalar(40), Scalar(70), Scalar(100)};
 
 	const Scalar color_black = Scalar(0, 0, 0);
 	const Scalar color_dark = Scalar(139, 139, 0);
@@ -373,9 +375,13 @@ void SegLabelGenerator::outputimLabels(const string &output_path, const string &
 				if(Flip)
 				{
 					line(im, p_interp_solid[i], p_interp_solid[i+1], color_lines[3-l], width);
+					line(imbin, p_interp_solid[i], p_interp_solid[i+1], 255, width);
 				}
 				else
+                {
 					line(im, p_interp_solid[i], p_interp_solid[i+1], color_lines[l], width);
+					line(imbin, p_interp_solid[i], p_interp_solid[i+1], 255, width);
+                }
 			}
 		}
 	
@@ -383,6 +389,7 @@ void SegLabelGenerator::outputimLabels(const string &output_path, const string &
     
 	string out_im_name = sub_im_name.substr(0, sub_im_name.find_last_of(".")) + ".png";
 	string impath = output_path+out_im_name;
+	string imbinpath = output_path+"bin"+out_im_name;
 	int path_len = 0;
 	struct stat statbuf, buffer;
 	int dir_err = 0;
@@ -413,17 +420,52 @@ void SegLabelGenerator::outputimLabels(const string &output_path, const string &
 			delete[] cpath;
 		}
 	}
+    path_len = 0;
+	for (string::iterator it=imbinpath.begin()+1; it!=imbinpath.end(); ++it)
+	{
+		path_len++;
+		if(*it=='/')
+		{
+			path = imbinpath.substr(0, path_len);
+			char *cpath = new char [path.length()+1];
+			strcpy(cpath, path.c_str());
+			if (stat(cpath, &statbuf) != -1)
+			{
+				if (!S_ISDIR(statbuf.st_mode))
+				{
+				}
+			}
+			else
+			{
+				dir_err = mkdir(cpath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+				if (dir_err == -1)
+				{
+					cout << "Error creating directory!" << endl;
+					exit(1);
+				}
+			}
+			delete[] cpath;
+		}
+	}
+
 	Mat imflip;
+	Mat imbinflip;
 	if(Flip)
 	{
 		flip(im, imflip, 1);
+		flip(imbin, imbinflip, 1);
 		im = imflip;
+        imbin = imbinflip;
 	}
 	if(stat(impath.c_str(), &buffer) != 0)
 	{
 		imwrite(impath, im);
 	//	cout << impath << endl;
 	}
+    if(stat(imbinpath.c_str(), &buffer) != 0)
+    {
+		imwrite(imbinpath, imbin);
+    }
 }
 
 double SegLabelGenerator::find_nearest_point(const vector<Point2f> &p_interp, const double y)
